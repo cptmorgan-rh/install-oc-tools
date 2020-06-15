@@ -3,7 +3,7 @@ install-oc-tools - OpenShift 4 Tools Installer
 
 DESCRIPTION
 ------------
-install-oc-cli is a small script that will download the latest, stable, fast, nightly, or specified version of the oc command line tools, kubectl, and openshift-install and copy them to /usr/local/bin.
+install-oc-tools is a small script that will download the latest, stable, fast, nightly, or specified version of the oc command line tools, kubectl, and openshift-install and copy them to /usr/local/bin.
 
 If a previous version of the tools are installed it will make a backup of the file.
 
