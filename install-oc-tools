@@ -16,6 +16,9 @@ run() {
     --version)
       version "$2"
       ;;
+    --info)
+      version_info "$2"
+      ;;
     --stable)
       stable "$2"
       ;;
@@ -35,6 +38,28 @@ run() {
   esac
 }
 
+version_info(){
+
+  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt)
+
+  if [[ "$status_code" -ne 200 ]]; then
+    echo "$1 does not exist"
+    exit 1
+  else
+
+  errata_url=$(curl --silent https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt 2>/dev/null | grep url | sed -e 's/    url: //')
+  k8s_ver=$(curl --silent https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
+  upgrades=$(curl --silent https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt 2>/dev/null | grep Upgrades | sed -e 's/  Upgrades: //')
+
+  echo "$1 Version Info:"
+  echo -e "\nKubernetes Version: $k8s_ver"
+  echo -e "\n$1 can be upgraded from the following versions: $upgrades"
+  echo -e "\nErrata: $errata_url"
+  exit 0
+
+fi
+
+}
 version() {
 
   if [[ "$1" == "" ]]; then
@@ -43,7 +68,7 @@ version() {
     exit 1
   fi
 
-  status_code=$(curl --write-out %{http_code} --silent --output /dev/null https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt)
+  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt)
 
   if [[ "$status_code" -ne 200 ]]; then
     echo "$1 does not exist"
@@ -237,6 +262,8 @@ Options:
   --version: Installs the specific version.  If no version is specified then it
              downloads the latest stable version of the oc tools.
     Example: install-oc-tools --version 4.4.6
+  --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
+    Example: install-oc-tools --ver_info 4.4.6
   --nightly: Installs the latest nightly version. If you do not specify a version it will grab
              the latest version.
     Example: install-oc-tools --nightly 4.4
