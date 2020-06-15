@@ -41,6 +41,13 @@ version() {
     echo "Please specify a version."
     echo "Example: install-oc-tools --version 4.4.6"
     exit 1
+  fi
+
+  status_code=$(curl --write-out %{http_code} --silent --output /dev/null https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt)
+
+  if [[ "$status_code" -ne 200 ]]; then
+    echo "$1 does not exist"
+    exit 1
   else
     VERSION=$(curl -s https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
