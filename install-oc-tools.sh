@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 set -e
 OS=$(uname -s)
@@ -372,7 +372,7 @@ remove_old_ver() {
   read -rp "Delete the following files?"
 $(echo -e "\n")
 $(for i in oc kubectl openshift-install; do ls -1 /usr/local/bin/$i*bak 2>/dev/null; done)
-$(echo -e "\nY/N? ")"
+$(echo -e "\nY/N? ")
 
   if [[ $REPLY =~ ^[Yy]$ ]]
   then
@@ -413,7 +413,8 @@ show_ver() {
 }
 
 show_help() {
-    echo "USAGE: install-oc-tools
+    cat  << ENDHELP
+USAGE: install-oc-tools
 install-oc-tools is a small script that will download the latest, stable, fast, nightly,
 or specified version of the oc command line tools, kubectl, and openshift-install.
 If a previous version of the tools are installed it will make a backup of the file.
@@ -440,7 +441,8 @@ Options:
              install-oc-tools --nightly
   --cleanup: This deleted all backed up version of oc, kubectl, and openshift-install
     Example: install-oc-tools --cleanup
-  --help:    Shows this help message"
+  --help:    Shows this help message
+ENDHELP
 }
 
 main() {
