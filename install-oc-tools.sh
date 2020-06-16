@@ -2,6 +2,9 @@
 
 set -e
 OS=$(uname -s)
+MIRROR_DOMAIN='https://mirror.openshift.com/'
+MIRROR_PATH='/pub/openshift-v4/clients/ocp/'
+MIRROR_DOMAIN='https://mirror.openshift.com//stable-$1/openshift-install-${OS}.tar.gz'
 if [ ${OS} == 'Linux' ]; then 
 	OS=linux
 elif [ ${OS} == 'Darwin' ]; then 
@@ -189,16 +192,18 @@ restore_version(){
 
 version_info(){
 
-  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt)
+  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt")
 
   if [[ "$status_code" -ne 200 ]]; then
     echo "$1 does not exist"
     exit 1
   else
 
-  errata_url=$(curl --silent https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt 2>/dev/null | grep url | sed -e 's/    url: //')
-  k8s_ver=$(curl --silent https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
-  upgrades=$(curl --silent https://mirror.openshift.com/pub/openshift-v4/clients/ocp/"$1"/release.txt 2>/dev/null | grep Upgrades | sed -e 's/  Upgrades: //')
+  releasetext="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt"
+
+  errata_url=$(curl --silent "${releasetext}" 2>/dev/null | grep url | sed -e 's/    url: //')
+  k8s_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
+  upgrades=$(curl --silent "${releasetext}" 2>/dev/null | grep Upgrades | sed -e 's/  Upgrades: //')
 
   echo "$1 Version Info:"
   echo -e "\nKubernetes Version: $k8s_ver"
@@ -310,8 +315,8 @@ stable() {
       echo "$VERSION already installed."
       exit 0
     fi
-    wget -q https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/openshift-client-${OS}.tar.gz -O /tmp/openshift-client-${OS}.tar.gz
-    wget -q  https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/openshift-install-${OS}.tar.gz -O /tmp/openshift-install-${OS}.tar.gz
+    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
@@ -325,17 +330,17 @@ nightly() {
         echo "$VERSION is installed."
         exit 0
       fi
-      wget -q http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz -O /tmp/openshift-client-${OS}.tar.gz
-      wget -q http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz -O /tmp/openshift-install-${OS}.tar.gz
+      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-linux.tar.gz"
+      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-linux.tar.gz"
   else
-    VERSION=$(curl -s http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/release.txt | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "$VERSION already installed."
       exit 0
     fi
-    wget -q http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz -O /tmp/openshift-client-${OS}.tar.gz
-    wget -q http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz -O /tmp/openshift-install-${OS}.tar.gz
+    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-client-linux.tar.gz -O /tmp/openshift-client-linux.tar.gz"
+    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-install-linux.tar.gz -O /tmp/openshift-install-linux.tar.gz"
   fi
 
 }
@@ -364,7 +369,7 @@ remove_old_ver() {
 
   if ls /usr/local/bin/oc*bak 1> /dev/null 2>&1 && ls /usr/local/bin/openshift-install*bak 1> /dev/null 2>&1 && ls /usr/local/bin/kubectl*bak 1> /dev/null 2>&1
   then
-  read -p "Delete the following files?
+  read -rp "Delete the following files?"
 $(echo -e "\n")
 $(for i in oc kubectl openshift-install; do ls -1 /usr/local/bin/$i*bak 2>/dev/null; done)
 $(echo -e "\nY/N? ")"
