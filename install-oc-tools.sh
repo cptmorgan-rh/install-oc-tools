@@ -2,15 +2,15 @@
 
 set -e
 OS=$(uname -s)
-MIRROR_DOMAIN='https://mirror.openshift.com/'
-MIRROR_PATH='/pub/openshift-v4/clients/ocp/'
-MIRROR_FILE="${MIRROR_DOMAIN}${MIRROR_PATH}/stable-${1}/openshift-install-${OS}.tar.gz"
+MIRROR_DOMAIN='https://mirror.openshift.com'
+MIRROR_PATH='/pub/openshift-v4/clients'
+#MIRROR_FILE="${MIRROR_DOMAIN}${MIRROR_PATH}/stable-${1}/openshift-install-${OS}.tar.gz"
 
-if [ "${OS}" == 'Linux' ]; then 
+if [ "${OS}" == 'Linux' ]; then
 	OS=linux
-elif [ "${OS}" == 'Darwin' ]; then 
-	OS=mac 
-else 
+elif [ "${OS}" == 'Darwin' ]; then
+	OS=mac
+else
 	echo "OS Unsupported: ${OS}"
 	exit 99
 fi
@@ -54,7 +54,7 @@ run() {
 restore_latest(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -71,7 +71,7 @@ restore_latest(){
       fi
     fi
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -94,7 +94,7 @@ restore_latest(){
 restore_fast(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -111,7 +111,7 @@ restore_fast(){
       fi
     fi
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -134,7 +134,7 @@ restore_fast(){
 restore_stable(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -151,7 +151,7 @@ restore_stable(){
       fi
     fi
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-${1}/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-${1}/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -193,14 +193,14 @@ restore_version(){
 
 version_info(){
 
-  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt")
+  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt")
 
   if [[ "$status_code" -ne 200 ]]; then
     echo "$1 does not exist"
     exit 1
   else
 
-  releasetext="https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt"
+  releasetext="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt"
 
   errata_url=$(curl --silent "${releasetext}" 2>/dev/null | grep url | sed -e 's/    url: //')
   k8s_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
@@ -226,20 +226,20 @@ version() {
     exit 1
   fi
 
-  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt")
+  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt")
 
   if [[ "$status_code" -ne 200 ]]; then
     echo "$1 does not exist"
     exit 1
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
@@ -249,23 +249,23 @@ latest() {
   restore_latest "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/latest-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
@@ -275,23 +275,23 @@ fast() {
   restore_fast "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/fast-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
@@ -301,23 +301,23 @@ stable() {
   restore_stable "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   else
-    VERSION=$(curl -s "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "https://mirror.openshift.com/pub/openshift-v4/clients/ocp/stable-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
@@ -325,23 +325,23 @@ stable() {
 nightly() {
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
         exit 0
       fi
-      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+      wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+      wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   else
-    VERSION=$(curl -s "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
-      echo "${VERSION} already installed."
+      echo "$VERSION already installed."
       exit 0
     fi
-    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz -O /tmp/openshift-client-${OS}.tar.gz"
-    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz -O /tmp/openshift-install-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz" -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
