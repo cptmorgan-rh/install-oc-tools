@@ -57,38 +57,24 @@ run() {
 restore_latest(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
-    if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
-    then
-      read -p "Found backup of version ${VERSION}. Restore?
-    $(echo -e "\nY/N? ")"
-      if [[ $REPLY =~ ^[Yy]$ ]]
-      then
-        backup
-        for i in openshift-install oc kubectl; do mv "/usr/local/bin/${i}.${VERSION}.bak" "/usr/local/bin/${i}"; done
-        show_ver
-        exit 0
-      elif [[ $REPLY =~ ^[Nn]$ ]]
-      then
-        echo "Downloading files..."
-      fi
-    fi
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt"    | grep 'Name:' | awk '{print $NF}')
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
-    if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
+  fi
+
+  if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
+  then
+    read -p "Found backup of version ${VERSION}. Restore?
+  $(echo -e "\nY/N? ")"
+    if [[ $REPLY =~ ^[Yy]$ ]]
     then
-      read -p "Found backup of version ${VERSION}. Restore?
-    $(echo -e "\nY/N? ")"
-      if [[ $REPLY =~ ^[Yy]$ ]]
-      then
-        backup
-        for i in openshift-install oc kubectl; do mv "/usr/local/bin/${i}.${VERSION}.bak" "/usr/local/bin/${i}"; done
-        show_ver
-        exit 0
-      elif [[ $REPLY =~ ^[Nn]$ ]]
-      then
-        echo "Downloading files..."
-      fi
+      backup
+      for i in openshift-install oc kubectl; do mv "/usr/local/bin/${i}.${VERSION}.bak" "/usr/local/bin/${i}"; done
+      show_ver
+      exit 0
+    elif [[ $REPLY =~ ^[Nn]$ ]]
+    then
+      echo "Downloading files..."
     fi
   fi
 
