@@ -35,6 +35,9 @@ run() {
     --stable)
       stable "$2"
       ;;
+		--candidate)
+      candidate "$2"
+      ;;
     --cleanup)
       remove_old_ver
       ;;
@@ -72,6 +75,46 @@ restore_latest(){
     fi
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
+    then
+      read -p "Found backup of version ${VERSION}. Restore?
+    $(echo -e "\nY/N? ")"
+      if [[ $REPLY =~ ^[Yy]$ ]]
+      then
+        backup
+        for i in openshift-install oc kubectl; do mv "/usr/local/bin/${i}.${VERSION}.bak" "/usr/local/bin/${i}"; done
+        show_ver
+        exit 0
+      elif [[ $REPLY =~ ^[Nn]$ ]]
+      then
+        echo "Downloading files..."
+      fi
+    fi
+  fi
+
+}
+
+restore_candidate(){
+
+  if [[ "$1" == "" ]]; then
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{print $NF}')
+    if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
+    then
+      read -p "Found backup of version ${VERSION}. Restore?
+    $(echo -e "\nY/N? ")"
+      if [[ $REPLY =~ ^[Yy]$ ]]
+      then
+        backup
+        for i in openshift-install oc kubectl; do mv "/usr/local/bin/${i}.${VERSION}.bak" "/usr/local/bin/${i}"; done
+        show_ver
+        exit 0
+      elif [[ $REPLY =~ ^[Nn]$ ]]
+      then
+        echo "Downloading files..."
+      fi
+    fi
+  else
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     if ls "/usr/local/bin/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "/usr/local/bin/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
     then
       read -p "Found backup of version ${VERSION}. Restore?
@@ -270,6 +313,33 @@ latest() {
 
 }
 
+
+candidate() {
+
+  restore_candidate "$1"
+
+  if [[ "$1" == "" ]]; then
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{print $NF}')
+    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
+      if [ "$VERSION" == "$CUR_VERSION" ]; then
+        echo "${VERSION} is installed."
+        exit 0
+      fi
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+  else
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
+    if [ "$VERSION" == "$CUR_VERSION" ]; then
+      echo "${VERSION} already installed."
+      exit 0
+    fi
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+  fi
+
+}
+
 fast() {
 
   restore_fast "$1"
@@ -431,6 +501,9 @@ Options:
   --stable:  Installs the latest stable version. If no version is specified then it
              downloads the latest stable version of the oc tools.
     Example: install-oc-tools --stable 4.4
+	--candidate:  Installs the candidate version. If no version is specified then it
+             downloads the latest candidate version of the oc tools.
+    Example: install-oc-tools --candidate 4.4
   --version: Installs the specific version.  If no version is specified then it
              downloads the latest stable version of the oc tools.
     Example: install-oc-tools --version 4.4.6
