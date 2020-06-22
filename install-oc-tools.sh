@@ -331,8 +331,8 @@ nightly() {
         echo "${VERSION} is installed."
         exit 0
       fi
-      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-linux.tar.gz"
-      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-linux.tar.gz"
+      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
+      wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
   else
     VERSION=$(curl -s "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
@@ -340,8 +340,8 @@ nightly() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-client-linux.tar.gz -O /tmp/openshift-client-linux.tar.gz"
-    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-install-linux.tar.gz -O /tmp/openshift-install-linux.tar.gz"
+    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz -O /tmp/openshift-client-${OS}.tar.gz"
+    wget -q "http://mirror.openshift.com/pub/openshift-v4/clients/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz -O /tmp/openshift-install-${OS}.tar.gz"
   fi
 
 }
