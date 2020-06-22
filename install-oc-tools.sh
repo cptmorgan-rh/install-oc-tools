@@ -491,31 +491,31 @@ or specified version of the oc command line tools, kubectl, and openshift-instal
 If a previous version of the tools are installed it will make a backup of the file.
 
 Options:
-  --latest:  Installs the latest specified version. If no version is specified then it
-             downloads the latest stable version of the oc tools.
-    Example: install-oc-tools --latest 4.4
-  --update:  Same as --latest
-  --fast:    Installs the latest fast version. If no version is specified then it downloads
-             the latest fast version.
-    Example: install-oc-tools --fast 4.4
-  --stable:  Installs the latest stable version. If no version is specified then it
-             downloads the latest stable version of the oc tools.
-    Example: install-oc-tools --stable 4.4
-	--candidate:  Installs the candidate version. If no version is specified then it
-             downloads the latest candidate version of the oc tools.
-    Example: install-oc-tools --candidate 4.4
-  --version: Installs the specific version.  If no version is specified then it
-             downloads the latest stable version of the oc tools.
-    Example: install-oc-tools --version 4.4.6
-  --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
-    Example: install-oc-tools --ver_info 4.4.6
-  --nightly: Installs the latest nightly version. If you do not specify a version it will grab
-             the latest version.
-    Example: install-oc-tools --nightly 4.4
-             install-oc-tools --nightly
-  --cleanup: This deleted all backed up version of oc, kubectl, and openshift-install
-    Example: install-oc-tools --cleanup
-  --help:    Shows this help message
+    --latest:  Installs the latest specified version. If no version is specified then it
+               downloads the latest stable version of the oc tools.
+      Example: install-oc-tools --latest 4.4
+    --update:  Same as --latest
+    --fast:    Installs the latest fast version. If no version is specified then it downloads
+               the latest fast version.
+      Example: install-oc-tools --fast 4.4
+    --stable:  Installs the latest stable version. If no version is specified then it
+               downloads the latest stable version of the oc tools.
+      Example: install-oc-tools --stable 4.4
+  --candidate: Installs the candidate version. If no version is specified then it
+               downloads the latest candidate version of the oc tools.
+      Example: install-oc-tools --candidate 4.4
+    --version: Installs the specific version.  If no version is specified then it
+               downloads the latest stable version of the oc tools.
+      Example: install-oc-tools --version 4.4.6
+    --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
+      Example: install-oc-tools --ver_info 4.4.6
+    --nightly: Installs the latest nightly version. If you do not specify a version it will grab
+               the latest version.
+      Example: install-oc-tools --nightly 4.4
+               install-oc-tools --nightly
+    --cleanup: This deleted all backed up version of oc, kubectl, and openshift-install
+      Example: install-oc-tools --cleanup
+    --help:    Shows this help message
 ENDHELP
 }
 
