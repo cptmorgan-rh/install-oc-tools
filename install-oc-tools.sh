@@ -35,7 +35,7 @@ run() {
     --stable)
       stable "$2"
       ;;
-		--candidate)
+    --candidate)
       candidate "$2"
       ;;
     --cleanup)
