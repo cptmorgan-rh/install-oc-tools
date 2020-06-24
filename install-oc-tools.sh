@@ -61,7 +61,7 @@ run() {
     --update)
       latest
       ;;
-		--uninstall)
+    --uninstall)
       uninstall
       ;;
     *)
