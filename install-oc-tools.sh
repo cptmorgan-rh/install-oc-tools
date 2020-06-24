@@ -83,7 +83,7 @@ restore_latest(){
 restore_candidate(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{print $NF}')
+      VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{print $NF}')
 	  else
 	    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
 	  fi
@@ -225,8 +225,9 @@ version() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   fi
 
 }
@@ -242,8 +243,9 @@ latest() {
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
@@ -251,8 +253,9 @@ latest() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-client-${OS}.tar.gz"
+    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   fi
 
 }
@@ -269,8 +272,9 @@ candidate() {
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
@@ -278,8 +282,9 @@ candidate() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   fi
 
 }
@@ -295,8 +300,9 @@ fast() {
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
@@ -304,8 +310,9 @@ fast() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   fi
 
 }
@@ -321,8 +328,9 @@ stable() {
         echo "${VERSION} is installed."
         exit 0
       fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+			CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-client-${OS}.tar.gz"
+			INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-install-${OS}.tar.gz"
+			download $CLIENT $INSTALL
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
@@ -330,8 +338,9 @@ stable() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+		CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-client-${OS}.tar.gz"
+		INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   fi
 
 }
@@ -345,8 +354,9 @@ nightly() {
         echo "${VERSION} is installed."
         exit 0
       fi
-      wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"  -O "/tmp/openshift-client-${OS}.tar.gz"
-      wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+			CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"
+	    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz"
+			download $CLIENT $INSTALL
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
@@ -354,8 +364,9 @@ nightly() {
       echo "$VERSION already installed."
       exit 0
     fi
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz" -O "/tmp/openshift-client-${OS}.tar.gz"
-    wget -q "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz" -O "/tmp/openshift-install-${OS}.tar.gz"
+    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz"
+    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz"
+		download $CLIENT $INSTALL
   fi
 
 }
@@ -425,6 +436,26 @@ show_ver() {
   else
       echo "Error getting openshift-install version. Please rerun script."
   fi
+}
+
+download(){
+
+	echo -n "Downloading openshift-client-${OS}.tar.gz:    "
+	wget --progress=dot $1 -O "/tmp/openshift-client-${OS}.tar.gz" 2>&1 | \
+	    grep --line-buffered "%" | \
+			sed -u -e "s,\.,,g" | \
+			awk '{printf("\b\b\b\b%4s", $2)}'
+	echo -ne "\b\b\b\b"
+	echo " Download Complete."
+
+	echo -n "Downloading openshift-client-${OS}.tar.gz:    "
+	wget --progress=dot $2 -O "/tmp/openshift-install-${OS}.tar.gz" 2>&1 | \
+	    grep --line-buffered "%" | \
+			sed -u -e "s,\.,,g" | \
+			awk '{printf("\b\b\b\b%4s", $2)}'
+	echo -ne "\b\b\b\b"
+	echo " Downloaded Complete."
+
 }
 
 show_help() {
