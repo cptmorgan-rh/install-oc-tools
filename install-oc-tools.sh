@@ -530,7 +530,7 @@ Options:
                install-oc-tools --nightly
     --cleanup: This deleted all backed up version of oc, kubectl, and openshift-install
       Example: install-oc-tools --cleanup
-	--uninstall: This will delete all copies of oc, kubectl, and openshift-install including backups
+  --uninstall: This will delete all copies of oc, kubectl, and openshift-install including backups
       Example: install-oc-tools --uninstall
     --help:    Shows this help message
 ENDHELP
