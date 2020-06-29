@@ -16,7 +16,7 @@ DEMO
 
 INSTALLATION
 ------------
-* Copy install-oc-tools to /usr/local/bin
+* Copy install-oc-tools to location inside of your $PATH
 
 USAGE
 ------------
@@ -40,11 +40,10 @@ Options:
                downloads the latest stable version of the oc tools.
       Example: install-oc-tools --version 4.4.6
     --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
-      Example: install-oc-tools --ver_info 4.4.6
+      Example: install-oc-tools --info 4.4.6
     --nightly: Installs the latest nightly version. If you do not specify a version it will grab
                the latest version.
       Example: install-oc-tools --nightly 4.4
-               install-oc-tools --nightly
     --cleanup: This deleted all backed up version of oc, kubectl, and openshift-install
       Example: install-oc-tools --cleanup
   --uninstall: This will delete all copies of oc, kubectl, and openshift-install including backups
