@@ -203,12 +203,23 @@ restore_version(){
 
 }
 
+verify_version(){
+
+status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "$1")
+
+if [[ "$status_code" -ne 200 ]]; then
+  echo "Version $2 does not exist"
+  exit 1
+fi
+
+}
+
 version_info(){
 
   status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt")
 
   if [[ "$status_code" -ne 200 ]]; then
-    echo "$1 does not exist"
+    echo "Version $1 does not exist"
     exit 1
   else
     releasetext="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt"
@@ -238,7 +249,7 @@ version() {
   status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt")
 
   if [[ "$status_code" -ne 200 ]]; then
-    echo "$1 does not exist"
+    echo "Version $1 does not exist"
     exit 1
   else
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt" | grep 'Name:' | awk '{print $NF}')
@@ -269,6 +280,7 @@ latest() {
     INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   else
+    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" "$1"
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
@@ -297,7 +309,8 @@ candidate() {
     INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" "$1"
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
@@ -325,6 +338,7 @@ fast() {
     INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   else
+    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" "$1"
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
@@ -353,6 +367,7 @@ stable() {
     INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   else
+    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" "$1"
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
@@ -379,6 +394,7 @@ nightly() {
     INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   else
+    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" "$1"
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
