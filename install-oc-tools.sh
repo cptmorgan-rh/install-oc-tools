@@ -89,6 +89,18 @@ run() {
 
 }
 
+check_internet(){
+
+status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt")
+
+if [[ "$status_code" -ne 200 ]]; then
+  echo "Internet Access is required for this tool to run."
+  exit 1
+fi
+
+}
+
+
 restore_latest(){
 
   if [[ "$1" == "" ]]; then
@@ -580,6 +592,8 @@ ENDHELP
 }
 
 main() {
+
+  check_internet
 
   if [ "$EUID" -ne 0 ]; then
     echo "This script requires root access to run."
