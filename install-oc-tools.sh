@@ -523,7 +523,7 @@ wget --progress=dot "$1" -O "/tmp/openshift-client-${OS}.tar.gz" 2>&1 | \
 echo -ne "\b\b\b\b"
 echo " Download Complete."
 
-echo -n "Downloading openshift-client-${OS}.tar.gz:    "
+echo -n "Downloading openshift-install-${OS}.tar.gz:    "
 wget --progress=dot "$2" -O "/tmp/openshift-install-${OS}.tar.gz" 2>&1 | \
     grep --line-buffered "%" | \
     sed -e "s,\.,,g" | \
