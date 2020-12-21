@@ -19,7 +19,7 @@ ARCH=$(uname -m)
 MIRROR_DOMAIN='https://mirror.openshift.com'
 
 if [ "${ARCH}" == 'x86_64' ]; then
-  MIRROR_PATH='/pub/openshift-v4/clients'
+  MIRROR_PATH='pub/openshift-v4/x86_64/clients/ocp/'
 elif [ "${ARCH}" == 's390x' ]; then
   MIRROR_PATH='/pub/openshift-v4/s390x/clients'
 elif [ "${ARCH}" == 'ppc64le' ]; then
