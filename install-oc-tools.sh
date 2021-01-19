@@ -19,7 +19,7 @@ ARCH=$(uname -m)
 MIRROR_DOMAIN='https://mirror.openshift.com'
 
 if [ "${ARCH}" == 'x86_64' ]; then
-  MIRROR_PATH='pub/openshift-v4/x86_64/clients/ocp/'
+  MIRROR_PATH='/pub/openshift-v4/x86_64/clients'
 elif [ "${ARCH}" == 's390x' ]; then
   MIRROR_PATH='/pub/openshift-v4/s390x/clients'
 elif [ "${ARCH}" == 'ppc64le' ]; then
@@ -100,13 +100,12 @@ fi
 
 }
 
-
 restore_latest(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt"    | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt"    | grep 'Name:' | awk '{ print $NF }')
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
   fi
 
   if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
@@ -128,9 +127,9 @@ restore_latest(){
 restore_candidate(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt"    | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt"    | grep 'Name:' | awk '{ print $NF }')
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
   fi
 
   if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
@@ -152,9 +151,9 @@ restore_candidate(){
 restore_fast(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt"    | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt"    | grep 'Name:' | awk '{ print $NF }')
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
   fi
 
   if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
@@ -176,9 +175,9 @@ restore_fast(){
 restore_stable(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt"    | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt"    | grep 'Name:' | awk '{ print $NF }')
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
   fi
 
   if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
@@ -264,7 +263,7 @@ version() {
     echo "Version $1 does not exist"
     exit 1
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
@@ -282,7 +281,7 @@ latest() {
   restore_latest "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
@@ -293,7 +292,7 @@ latest() {
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
@@ -311,7 +310,7 @@ candidate() {
   restore_candidate "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
@@ -322,7 +321,7 @@ candidate() {
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
@@ -340,7 +339,7 @@ fast() {
   restore_fast "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
@@ -351,7 +350,7 @@ fast() {
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
@@ -369,7 +368,7 @@ stable() {
   restore_stable "$1"
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
@@ -380,7 +379,7 @@ stable() {
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
@@ -396,7 +395,7 @@ stable() {
 nightly() {
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
@@ -407,7 +406,7 @@ nightly() {
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{print $NF}')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "$VERSION already installed."
