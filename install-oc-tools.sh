@@ -20,6 +20,8 @@ MIRROR_DOMAIN='https://mirror.openshift.com'
 
 if [ "${ARCH}" == 'x86_64' ]; then
   MIRROR_PATH='/pub/openshift-v4/x86_64/clients'
+elif [ "${ARCH}" == 'arm64' ]; then
+  MIRROR_PATH='/pub/openshift-v4/arm64/clients'
 elif [ "${ARCH}" == 's390x' ]; then
   MIRROR_PATH='/pub/openshift-v4/s390x/clients'
 elif [ "${ARCH}" == 'ppc64le' ]; then
@@ -540,7 +542,7 @@ wget --progress=dot "$2" -O "/tmp/openshift-install-${OS}.tar.gz" 2>&1 | \
     sed -e "s,\.,,g" | \
     awk '{printf("\b\b\b\b%4s", $2)}'
 echo -ne "\b\b\b\b"
-echo " Downloaded Complete."
+echo " Download Complete."
 
 }
 
