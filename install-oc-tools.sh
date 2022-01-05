@@ -236,12 +236,16 @@ version_info(){
     exit 1
   else
     releasetext="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt"
+    created_date=$(curl --silent "${releasetext}" 2>/dev/null | grep Created | sed -e 's/Created:   //')
     errata_url=$(curl --silent "${releasetext}" 2>/dev/null | grep url | sed -e 's/    url: //')
     k8s_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
     upgrades=$(curl --silent "${releasetext}" 2>/dev/null | grep Upgrades | sed -e 's/  Upgrades: //')
+    rhcos_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep machine-os -m1 | sed -e 's/  machine-os //' | sed -e 's/ Red Hat Enterprise Linux CoreOS//')
 
     echo "$1 Version Info:"
+    echo -e "\nCreated Date: $created_date"
     echo -e "\nKubernetes Version: $k8s_ver"
+    echo -e "\nRHCOS Version: $rhcos_ver"
     echo -e "\n$1 can be upgraded from the following versions: $upgrades"
     echo -e "\nErrata: $errata_url"
     exit 0
