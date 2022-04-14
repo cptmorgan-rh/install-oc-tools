@@ -50,11 +50,17 @@ setup() {
 run() {
 
   case "$1" in
-    --fast)
-      fast "$2"
-      ;;
     --latest)
-      latest "$2"
+      release "$2" "latest"
+      ;;
+    --stable)
+      release "$2" "stable"
+      ;;
+    --fast)
+      release "$2" "fast"
+      ;;
+    --candidate)
+      release "$2" "candidate"
       ;;
     --nightly)
       nightly "$2"
@@ -65,12 +71,6 @@ run() {
     --info)
       version_info "$2"
       ;;
-    --stable)
-      stable "$2"
-      ;;
-    --candidate)
-      candidate "$2"
-      ;;
     --cleanup)
       remove_old_ver
       ;;
@@ -80,6 +80,9 @@ run() {
       ;;
     --update)
       latest
+      ;;
+    --cli)
+      cli "$2"
       ;;
     --uninstall)
       uninstall
@@ -102,12 +105,12 @@ fi
 
 }
 
-restore_latest(){
+restore(){
 
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt"    | grep 'Name:' | awk '{ print $NF }')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/release.txt"    | grep 'Name:' | awk '{ print $NF }')
   else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
   fi
 
   if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
@@ -115,79 +118,7 @@ restore_latest(){
     read -rp "Found backup of version ${VERSION}. Restore?
     $(echo -e "\nY/N? ")"
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-      backup
-      for i in openshift-install oc kubectl; do mv "${BIN_PATH}/${i}.${VERSION}.bak" "${BIN_PATH}/${i}"; done
-      show_ver
-      exit 0
-    elif [[ $REPLY =~ ^[Nn]$ ]]; then
-      echo "Downloading files..."
-    fi
-  fi
-
-}
-
-restore_candidate(){
-
-  if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt"    | grep 'Name:' | awk '{ print $NF }')
-  else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
-  fi
-
-  if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
-  then
-    read -rp "Found backup of version ${VERSION}. Restore?
-    $(echo -e "\nY/N? ")"
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      backup
-      for i in openshift-install oc kubectl; do mv "${BIN_PATH}/${i}.${VERSION}.bak" "${BIN_PATH}/${i}"; done
-      show_ver
-      exit 0
-    elif [[ $REPLY =~ ^[Nn]$ ]]; then
-      echo "Downloading files..."
-    fi
-  fi
-
-}
-
-restore_fast(){
-
-  if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt"    | grep 'Name:' | awk '{ print $NF }')
-  else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
-  fi
-
-  if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
-  then
-    read -rp "Found backup of version ${VERSION}. Restore?
-    $(echo -e "\nY/N? ")"
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      backup
-      for i in openshift-install oc kubectl; do mv "${BIN_PATH}/${i}.${VERSION}.bak" "${BIN_PATH}/${i}"; done
-      show_ver
-      exit 0
-    elif [[ $REPLY =~ ^[Nn]$ ]]; then
-      echo "Downloading files..."
-    fi
-  fi
-
-}
-
-restore_stable(){
-
-  if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt"    | grep 'Name:' | awk '{ print $NF }')
-  else
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
-  fi
-
-  if ls "${BIN_PATH}/oc.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/openshift-install.${VERSION}.bak" 1> /dev/null 2>&1 && ls "${BIN_PATH}/kubectl.${VERSION}.bak" 1> /dev/null 2>&1
-  then
-    read -rp "Found backup of version ${VERSION}. Restore?
-    $(echo -e "\nY/N? ")"
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-      backup
+      backup restore
       for i in openshift-install oc kubectl; do mv "${BIN_PATH}/${i}.${VERSION}.bak" "${BIN_PATH}/${i}"; done
       show_ver
       exit 0
@@ -205,7 +136,7 @@ restore_version(){
     read -rp "Found backup of version $1. Restore?
     $(echo -e "\nY/N? ")"
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-      backup
+      backup restore
       for i in openshift-install oc kubectl; do mv "${BIN_PATH}/${i}.${1}.bak" "${BIN_PATH}/${i}"; done
       show_ver
       exit 0
@@ -229,24 +160,30 @@ fi
 
 version_info(){
 
-  status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt")
+  if [[ $1 =~ ^4+\.[0-9]+\.[0-9]+$ ]]; then
+    status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt")
+    releasetext="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt"
+  else
+    status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt")
+    releasetext="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt"
+  fi
 
   if [[ "$status_code" -ne 200 ]]; then
     echo "Version $1 does not exist"
     exit 1
   else
-    releasetext="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/release.txt"
+    ver_name=$(curl --silent "${releasetext}" 2>/dev/null | grep Name | sed -e 's/Name:      //')
     created_date=$(curl --silent "${releasetext}" 2>/dev/null | grep Created | sed -e 's/Created:   //')
     errata_url=$(curl --silent "${releasetext}" 2>/dev/null | grep url | sed -e 's/    url: //')
     k8s_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
     upgrades=$(curl --silent "${releasetext}" 2>/dev/null | grep Upgrades | sed -e 's/  Upgrades: //')
     rhcos_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep machine-os -m1 | sed -e 's/  machine-os //' | sed -e 's/ Red Hat Enterprise Linux CoreOS//')
 
-    echo "$1 Version Info:"
+    echo "$ver_name Version Info:"
     echo -e "\nCreated Date: $created_date"
     echo -e "\nKubernetes Version: $k8s_ver"
     echo -e "\nRHCOS Version: $rhcos_ver"
-    echo -e "\n$1 can be upgraded from the following versions: $upgrades"
+    echo -e "\n$ver_name can be upgraded from the following versions: $upgrades"
     echo -e "\nErrata: $errata_url"
     exit 0
   fi
@@ -282,117 +219,36 @@ version() {
 
 }
 
-latest() {
+release() {
 
-  restore_latest "$1"
+  restore "$1" "$2"
 
-  if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/release.txt" | grep 'Name:' | awk '{ print $NF }')
-    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-      if [ "$VERSION" == "$CUR_VERSION" ]; then
-        echo "${VERSION} is installed."
-        exit 0
-      fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest/openshift-install-${OS}.tar.gz"
-    download "$CLIENT" "$INSTALL"
-  else
-    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
-    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-    if [ "$VERSION" == "$CUR_VERSION" ]; then
-      echo "${VERSION} already installed."
-      exit 0
-    fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/latest-$1/openshift-install-${OS}.tar.gz"
-    download "$CLIENT" "$INSTALL"
+  if [[ $1 =~ ^4+\.[0-9]+\.[0-9]+$ ]]; then
+    echo "Specific version specified. Downloading that version."
+    printf "\n"
+    version $1
   fi
 
-}
-
-candidate() {
-
-  restore_candidate "$1"
-
   if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/release.txt" | grep 'Name:' | awk '{ print $NF }')
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
       if [ "$VERSION" == "$CUR_VERSION" ]; then
         echo "${VERSION} is installed."
         exit 0
       fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate/openshift-install-${OS}.tar.gz"
+    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-client-${OS}.tar.gz"
+    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   else
-    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
+    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/release.txt" "$1"
+    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
     if [ "$VERSION" == "$CUR_VERSION" ]; then
       echo "${VERSION} already installed."
       exit 0
     fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/candidate-$1/openshift-install-${OS}.tar.gz"
-    download "$CLIENT" "$INSTALL"
-  fi
-
-}
-
-fast() {
-
-  restore_fast "$1"
-
-  if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/release.txt" | grep 'Name:' | awk '{ print $NF }')
-    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-      if [ "$VERSION" == "$CUR_VERSION" ]; then
-        echo "${VERSION} is installed."
-        exit 0
-      fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast/openshift-install-${OS}.tar.gz"
-    download "$CLIENT" "$INSTALL"
-  else
-    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
-    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-    if [ "$VERSION" == "$CUR_VERSION" ]; then
-      echo "${VERSION} already installed."
-      exit 0
-    fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/fast-$1/openshift-install-${OS}.tar.gz"
-    download "$CLIENT" "$INSTALL"
-  fi
-
-}
-
-stable() {
-
-  restore_stable "$1"
-
-  if [[ "$1" == "" ]]; then
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt" | grep 'Name:' | awk '{ print $NF }')
-    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-      if [ "$VERSION" == "$CUR_VERSION" ]; then
-        echo "${VERSION} is installed."
-        exit 0
-      fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/openshift-install-${OS}.tar.gz"
-    download "$CLIENT" "$INSTALL"
-  else
-    verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" "$1"
-    VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/release.txt" | grep 'Name:' | awk '{ print $NF }')
-    CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-    if [ "$VERSION" == "$CUR_VERSION" ]; then
-      echo "${VERSION} already installed."
-      exit 0
-    fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable-$1/openshift-install-${OS}.tar.gz"
+    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-client-${OS}.tar.gz"
+    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-install-${OS}.tar.gz"
     download "$CLIENT" "$INSTALL"
   fi
 
@@ -425,12 +281,38 @@ nightly() {
 
 }
 
+download(){
+
+echo -n "Downloading $(echo $1 | awk -F/ '{ print $NF }'):    "
+wget --progress=dot "$1" -O "/tmp/$(echo $1 | awk -F/ '{ print $NF }')" 2>&1 | \
+    grep --line-buffered "%" | \
+    sed -e "s,\.,,g" | \
+    awk '{printf("\b\b\b\b%4s", $2)}'
+echo -ne "\b\b\b\b"
+echo " Download Complete."
+
+echo -n "Downloading $(echo $2 | awk -F/ '{ print $NF }'):    "
+wget --progress=dot "$2" -O "/tmp/$(echo $2 | awk -F/ '{ print $NF }')" 2>&1 | \
+    grep --line-buffered "%" | \
+    sed -e "s,\.,,g" | \
+    awk '{printf("\b\b\b\b%4s", $2)}'
+echo -ne "\b\b\b\b"
+echo " Download Complete."
+
+backup extract
+
+}
+
 backup() {
 
   CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
   if [[ -f "${BIN_PATH}/oc" ]] && [[ -f "${BIN_PATH}/openshift-install" ]] && [[ -f "${BIN_PATH}/kubectl" ]]
   then
       for i in openshift-install oc kubectl; do mv "$(which $i)" ${BIN_PATH}/"$i"."$CUR_VERSION".bak; done
+  fi
+
+  if [[ "$1" == "extract" ]]; then
+    extract cleanup
   fi
 
 }
@@ -442,6 +324,10 @@ extract() {
   echo -e "\nExtracting openshift-install from openshift-install-${OS}.tar.gz to ${BIN_PATH}"
   tar -zxf "/tmp/openshift-install-${OS}.tar.gz" -C ${BIN_PATH}
 
+  if [[ "$1" == "cleanup" ]]; then
+    cleanup
+  fi
+
 }
 
 cleanup() {
@@ -449,6 +335,8 @@ cleanup() {
   rm -rf ${BIN_PATH}/README.md
   rm -rf "/tmp/openshift-client-${OS}.tar.gz"
   rm -rf "/tmp/openshift-install-${OS}.tar.gz"
+
+  show_ver
 
 }
 
@@ -530,23 +418,142 @@ show_ver() {
 
 }
 
-download(){
+cli(){
 
-echo -n "Downloading openshift-client-${OS}.tar.gz:    "
-wget --progress=dot "$1" -O "/tmp/openshift-client-${OS}.tar.gz" 2>&1 | \
+  case "$1" in
+    butane)
+      cli_path "butane"
+      ;;
+    coreos-installer)
+      cli_path "coreos-installer"
+      ;;
+    helm)
+      cli_path "helm"
+      ;;
+    kam)
+      cli_path "kam"
+      ;;
+    odo)
+      cli_path "odo"
+      ;;
+    serverless)
+      cli_path "serverless"
+      ;;
+    *)
+      cli_path "help"
+      ;;
+  esac
+
+}
+
+cli_path(){
+
+  if [[ "$1" == "help" ]]
+  then
+    echo "Please enter butane, coreos-installer, helm, kam, odo, or serverless."
+    exit 0
+  fi
+
+  if [[ "$1" == "butane" ]]
+  then
+    if [ "$OS" == "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/butane/latest/butane-darwin-${ARCH}"
+    elif [ "$OS" != "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/butane/latest/butane-amd64"
+    else
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/butane/latest/butane-${ARCH}"
+    fi
+  fi
+
+  if [[ "$1" == "coreos-installer" ]]
+  then
+    if [ "$ARCH" == "x86_64" ]
+      then
+        MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/coreos-installer/latest/coreos-installer_amd64"
+      else
+        MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/coreos-installer/latest/coreos-installer_$ARCH"
+    fi
+  fi
+
+  if [[ "$1" == "helm" ]]
+  then
+    if [ "$OS" == "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/helm/latest/helm-darwin-${ARCH}"
+    elif [ "$OS" != "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/helm/latest/helm-linux-amd64"
+    else
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/helm/latest/helm-linux-${ARCH}"
+    fi
+  fi
+
+  if [[ "$1" == "kam" ]]
+  then
+    if [ "$OS" == "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/kam/latest/kam-darwin-${ARCH}"
+    elif [ "$OS" != "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/kam/latest/kam-linux-amd64"
+    else
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/kam/latest/kam-linux-${ARCH}"
+    fi
+  fi
+
+  if [[ "$1" == "odo" ]]
+  then
+    if [ "$OS" == "mac" ] && [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/odo/latest/odo-darwin-${ARCH}"
+    elif [ "$OS" == "mac" ] && [ "$ARCH" == "arm64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/odo/latest/odo-darwin-${ARCH}"
+    elif [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/odo/latest/odo-linux-amd64"
+    else
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/odo/latest/odo-linux-${ARCH}"
+    fi
+  fi
+
+  if [[ "$1" == "serverless" ]]
+  then
+    if [ "$OS" == "mac" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/serverless/latest/kn-macos-amd64.tar.gz"
+    elif [ "$ARCH" == "x86_64" ]
+    then
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/serverless/latest/kn-linux-amd64.tar.gz"
+    else
+      MIRROR_CLI_PATH="${MIRROR_DOMAIN}/pub/openshift-v4/clients/serverless/latest/kn-linux-${ARCH}.tar.gz"
+    fi
+  fi
+
+  download_cli $MIRROR_CLI_PATH "$1"
+
+}
+
+download_cli(){
+
+filename=$(echo $1 | awk -F/ '{ print $NF }')
+echo -n "Downloading $filename:    "
+wget --progress=dot "$1" -O "/tmp/$(echo $1 | awk -F/ '{ print $NF }')" 2>&1 | \
     grep --line-buffered "%" | \
     sed -e "s,\.,,g" | \
     awk '{printf("\b\b\b\b%4s", $2)}'
 echo -ne "\b\b\b\b"
 echo " Download Complete."
 
-echo -n "Downloading openshift-install-${OS}.tar.gz:    "
-wget --progress=dot "$2" -O "/tmp/openshift-install-${OS}.tar.gz" 2>&1 | \
-    grep --line-buffered "%" | \
-    sed -e "s,\.,,g" | \
-    awk '{printf("\b\b\b\b%4s", $2)}'
-echo -ne "\b\b\b\b"
-echo " Download Complete."
+if [[ "$2" == "serverless" ]]; then
+  tar -zxf "/tmp/$(echo $1 | awk -F/ '{ print $NF }')" -C ${BIN_PATH}
+  rm "/tmp/$(echo $1 | awk -F/ '{ print $NF }')"
+else
+  cp "/tmp/$(echo $1 | awk -F/ '{ print $NF }')" ${BIN_PATH}
+  chmod +x "${BIN_PATH}/$filename"
+fi
 
 }
 
@@ -561,22 +568,23 @@ If a previous version of the tools are installed it will make a backup of the fi
 Options:
     --latest:  Installs the latest specified version. If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --latest 4.4
+      Example: install-oc-tools --latest 4.10
     --update:  Same as --latest
     --fast:    Installs the latest fast version. If no version is specified then it downloads
                the latest fast version.
-      Example: install-oc-tools --fast 4.4
+      Example: install-oc-tools --fast 4.10
     --stable:  Installs the latest stable version. If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --stable 4.4
+      Example: install-oc-tools --stable 4.10
   --candidate: Installs the candidate version. If no version is specified then it
                downloads the latest candidate version of the oc tools.
-      Example: install-oc-tools --candidate 4.4
+      Example: install-oc-tools --candidate 4.10
     --version: Installs the specific version.  If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --version 4.4.10
+      Example: install-oc-tools --version 4.10.10
     --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
-      Example: install-oc-tools --info 4.4.10
+      Example: install-oc-tools --info 4.10
+      Example: install-oc-tools --info 4.10.5
     --nightly: Installs the latest nightly version. If you do not specify a version it will grab
                the latest version.
       Example: install-oc-tools --nightly
@@ -584,6 +592,8 @@ Options:
       Example: install-oc-tools --cleanup
   --uninstall: This will delete all copies of oc, kubectl, and openshift-install including backups
       Example: install-oc-tools --uninstall
+        --cli: Allows you to install butane, coreos-installer, helm, kam, odo, or serverless
+      Example: install-oc-tools --cli butane
     --help:    Shows this help message
 
 You may override the binary path by setting it in ${OCTOOLSRC}:
@@ -608,14 +618,6 @@ main() {
   setup
 
   run "$1" "$2"
-
-  backup
-
-  extract
-
-  cleanup
-
-  show_ver
 
 }
 
