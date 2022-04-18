@@ -17,6 +17,7 @@ fi
 
 ARCH=$(uname -m)
 MIRROR_DOMAIN='https://mirror.openshift.com'
+USEROVERRIDE=false
 
 if [ "${ARCH}" == 'x86_64' ]; then
   MIRROR_PATH='/pub/openshift-v4/x86_64/clients'
@@ -39,6 +40,7 @@ setup() {
   if [ -f "${OCTOOLSRC}" ]; then
     echo ".octoolsrc file detected, overriding defaults..."
     source "${OCTOOLSRC}"
+    USEROVERRIDE=true
     if [ ! -d "${BIN_PATH}" ]; then
       echo -e "\n${BIN_PATH} does not exist."
       exit 1
@@ -91,6 +93,16 @@ run() {
       show_help
       exit 0
   esac
+
+}
+
+check_root(){
+
+  if [ "${USEROVERRIDE}" != "true" ] && [ "$EUID" -ne 0 ];
+  then
+      echo "This command requires root access to run."
+      exit 1
+  fi
 
 }
 
@@ -192,6 +204,8 @@ version_info(){
 
 version() {
 
+  check_root
+
   restore_version "$1"
 
   if [[ "$1" == "" ]]; then
@@ -220,6 +234,8 @@ version() {
 }
 
 release() {
+
+  check_root
 
   restore "$1" "$2"
 
@@ -255,6 +271,8 @@ release() {
 }
 
 nightly() {
+
+  check_root
 
   if [[ "$1" == "" ]]; then
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/release.txt" | grep 'Name:' | awk '{ print $NF }')
@@ -368,6 +386,8 @@ fi
 }
 
 uninstall(){
+
+  check_root
 
 	if ls ${BIN_PATH}/oc 1> /dev/null 2>&1 && ls ${BIN_PATH}/openshift-install 1> /dev/null 2>&1 && ls ${BIN_PATH}/kubectl 1> /dev/null 2>&1
   then
@@ -538,6 +558,8 @@ cli_path(){
 
 download_cli(){
 
+check_root
+
 filename=$(echo $1 | awk -F/ '{ print $NF }')
 echo -n "Downloading $filename:    "
 wget --progress=dot "$1" -O "/tmp/$(echo $1 | awk -F/ '{ print $NF }')" 2>&1 | \
@@ -609,11 +631,6 @@ ENDHELP
 main() {
 
   check_internet
-
-  if [ "$EUID" -ne 0 ]; then
-    echo "This script requires root access to run."
-    exit
-  fi
 
   setup
 
