@@ -25,30 +25,34 @@ USAGE
 Options:
     --latest:  Installs the latest specified version. If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --latest 4.4
+      Example: install-oc-tools --latest 4.10
     --update:  Same as --latest
     --fast:    Installs the latest fast version. If no version is specified then it downloads
                the latest fast version.
-      Example: install-oc-tools --fast 4.4
+      Example: install-oc-tools --fast 4.10
     --stable:  Installs the latest stable version. If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --stable 4.4
+      Example: install-oc-tools --stable 4.10
   --candidate: Installs the candidate version. If no version is specified then it
                downloads the latest candidate version of the oc tools.
-      Example: install-oc-tools --candidate 4.4
+      Example: install-oc-tools --candidate 4.10
     --version: Installs the specific version.  If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --version 4.4.6
+      Example: install-oc-tools --version 4.10.10
     --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
-      Example: install-oc-tools --info 4.4.6
+      Example: install-oc-tools --info 4.10
+      Example: install-oc-tools --info 4.10.5
     --nightly: Installs the latest nightly version. If you do not specify a version it will grab
                the latest version.
-      Example: install-oc-tools --nightly 4.4
+      Example: install-oc-tools --nightly
     --cleanup: This deleted all backed up version of oc, kubectl, and openshift-install
       Example: install-oc-tools --cleanup
   --uninstall: This will delete all copies of oc, kubectl, and openshift-install including backups
       Example: install-oc-tools --uninstall
+        --cli: Allows you to install butane, coreos-installer, helm, kam, odo, or serverless
+      Example: install-oc-tools --cli butane
     --help:    Shows this help message
+
 ~~~
 
 AUTHOR
