@@ -15,21 +15,37 @@ else
   exit 99
 fi
 
-ARCH=$(uname -m)
 MIRROR_DOMAIN='https://mirror.openshift.com'
 USEROVERRIDE=false
 
-if [ "${ARCH}" == 'x86_64' ]; then
-  MIRROR_PATH='/pub/openshift-v4/x86_64/clients'
-elif [ "${ARCH}" == 'arm64' ]; then
-  MIRROR_PATH='/pub/openshift-v4/arm64/clients'
-elif [ "${ARCH}" == 's390x' ]; then
-  MIRROR_PATH='/pub/openshift-v4/s390x/clients'
-elif [ "${ARCH}" == 'ppc64le' ]; then
-  MIRROR_PATH='/pub/openshift-v4/ppc64le/clients'
+if [ -z ${ARCH} ]; then
+  ARCH=$(uname -m)
+  if [ "${ARCH}" == 'x86_64' ]; then
+    MIRROR_PATH='/pub/openshift-v4/x86_64/clients'
+  elif [ "${ARCH}" == 'arm64' ]; then
+    MIRROR_PATH='/pub/openshift-v4/arm64/clients'
+  elif [ "${ARCH}" == 's390x' ]; then
+    MIRROR_PATH='/pub/openshift-v4/s390x/clients'
+  elif [ "${ARCH}" == 'ppc64le' ]; then
+    MIRROR_PATH='/pub/openshift-v4/ppc64le/clients'
+  else
+    echo "Architecture Unsupported: ${ARCH}"
+    exit 99
+  fi
 else
-  echo "Architecture Unsupported: ${ARCH}"
-  exit 99
+  if [ "${ARCH}" == 'x86_64' ]; then
+    MIRROR_PATH='/pub/openshift-v4/x86_64/clients'
+  elif [ "${ARCH}" == 'arm64' ]; then
+    MIRROR_PATH='/pub/openshift-v4/arm64/clients'
+  elif [ "${ARCH}" == 's390x' ]; then
+    MIRROR_PATH='/pub/openshift-v4/s390x/clients'
+  elif [ "${ARCH}" == 'ppc64le' ]; then
+    MIRROR_PATH='/pub/openshift-v4/ppc64le/clients'
+  else
+    echo "Architecture Unsupported: ${ARCH}"
+    echo "Supported Architectures: x86_64 arm64 s390x ppc64le"
+    exit 99
+  fi
 fi
 
 BIN_PATH="/usr/local/bin"
@@ -581,7 +597,7 @@ fi
 
 show_help() {
 
-    cat  << ENDHELP
+cat  << ENDHELP
 USAGE: $(basename "$0")
 install-oc-tools is a small script that will download the latest, stable, fast, nightly,
 or specified version of the oc command line tools, kubectl, and openshift-install.

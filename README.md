@@ -18,6 +18,16 @@ INSTALLATION
 ------------
 * Copy install-oc-tools to location inside of your $PATH
 
+OVERRIDE ARCH
+------------
+
+If you need to download a specific architecture e.g. you are using an M# Mac but require the x86_64 binary, set the ARCH variable prior to running the script.
+
+Example:
+`ARCH=x86_64 sudo install-oc-tools --version 4.11.0`
+
+Architecture supported by OpenShift: x86_64 arm64 s390x ppc64le
+
 USAGE
 ------------
 
