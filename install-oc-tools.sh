@@ -200,10 +200,10 @@ version_info(){
     echo "Version $1 does not exist"
     exit 1
   else
-    ver_name=$(curl --silent "${releasetext}" 2>/dev/null | grep Name | sed -e 's/Name:      //')
-    created_date=$(curl --silent "${releasetext}" 2>/dev/null | grep Created | sed -e 's/Created:   //')
+    ver_name=$(curl --silent "${releasetext}" 2>/dev/null | grep Name | sed -e 's/Name:      //' | sed -e 's/^[ \t]*//')
+    created_date=$(curl --silent "${releasetext}" 2>/dev/null | grep Created | sed -e 's/Created:   //' | sed -e 's/^[ \t]*//')
     errata_url=$(curl --silent "${releasetext}" 2>/dev/null | grep url | sed -e 's/    url: //')
-    k8s_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep -m1 kubernetes | sed -e 's/  kubernetes //')
+    k8s_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep -m1 kubernetes | sed -e 's/kubernetes //' | sed -e 's/^[ \t]*//')
     upgrades=$(curl --silent "${releasetext}" 2>/dev/null | grep Upgrades | sed -e 's/  Upgrades: //')
     rhcos_ver=$(curl --silent "${releasetext}" 2>/dev/null | grep machine-os -m1 | sed -e 's/  machine-os //' | sed -e 's/ Red Hat Enterprise Linux CoreOS//')
 
