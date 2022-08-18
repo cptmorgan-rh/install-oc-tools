@@ -122,7 +122,13 @@ check_root(){
 
 }
 
-check_internet(){
+check_prereq(){
+
+#Check for wget
+if [ ! $(command -v wget) ]; then
+  echo "wget not found. Please install wget."
+  exit 1
+fi
 
 status_code=$(curl --write-out "%{http_code}" --silent --output /dev/null "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/stable/release.txt")
 
@@ -646,7 +652,7 @@ ENDHELP
 
 main() {
 
-  check_internet
+  check_prereq
 
   setup
 
