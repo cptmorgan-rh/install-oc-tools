@@ -21,10 +21,12 @@ INSTALLATION
 OVERRIDE ARCH
 ------------
 
-If you need to download a specific architecture e.g. you are using an M# Mac but require the x86_64 binary, set the ARCH variable prior to running the script.
+If you need to download a specific architecture e.g. you are using an M# Mac but require the x86_64 binary or if you need to check the details on a specific version, set the ARCH variable prior to running the script.
 
 Example:
 `sudo ARCH=x86_64 install-oc-tools --version 4.11.0`
+
+`ARCH=x86_64 install-oc-tools --info 4.8`
 
 Architecture supported by OpenShift: x86_64 arm64 s390x ppc64le
 
