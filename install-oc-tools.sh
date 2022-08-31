@@ -217,8 +217,11 @@ version_info(){
     echo -e "\nCreated Date: $created_date"
     echo -e "\nKubernetes Version: $k8s_ver"
     echo -e "\nRHCOS Version: $rhcos_ver"
-    echo -e "\n$ver_name can be upgraded from the following versions: $upgrades"
+    echo -e "\n$ver_name can be upgraded from the following versions:"
+    echo -e "\n$upgrades"
     echo -e "\nErrata: $errata_url"
+    echo -e "\nRelease File: $releasetext"
+    echo -e "\n"
     exit 0
   fi
 
