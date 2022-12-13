@@ -278,16 +278,18 @@ release() {
   if [[ "$1" == "" ]]; then
     VERSION=$(curl -s "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/release.txt" | grep 'Name:' | awk '{ print $NF }')
     CUR_VERSION=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')
-      if [ "$VERSION" == "$CUR_VERSION" ]; then
-        echo "${VERSION} is installed."
-        exit 0
-      fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-client-${OS}.tar.gz"
+    if [ "$VERSION" == "$CUR_VERSION" ]; then
+      echo "${VERSION} is installed."
+      exit 0
+    fi
+
     if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-client-${OS}-${ARCH}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}-${ARCH}.tar.gz"
     else
+      CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-client-${OS}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}.tar.gz"
-    fi
+    fi    
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/release.txt" "$1"
@@ -297,10 +299,12 @@ release() {
       echo "${VERSION} already installed."
       exit 0
     fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-client-${OS}.tar.gz"
+
     if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-client-${OS}-${ARCH}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-install-${OS}-${ARCH}.tar.gz"
     else
+      CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-client-${OS}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-install-${OS}.tar.gz"
     fi
     download "$CLIENT" "$INSTALL"
@@ -319,10 +323,12 @@ nightly() {
         echo "${VERSION} is installed."
         exit 0
       fi
-    CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"
+
     if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}-${ARCH}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}-${ARCH}.tar.gz"
     else
+      CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz"
     fi
     download "$CLIENT" "$INSTALL"
