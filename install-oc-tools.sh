@@ -235,7 +235,7 @@ version() {
 
   if [[ "$1" == "" ]]; then
     echo "Please specify a version."
-    echo "Example: install-oc-tools --version 4.4.10"
+    echo "Example: install-oc-tools --version 4.11.10"
     exit 1
   fi
 
@@ -252,7 +252,11 @@ version() {
       exit 0
     fi
     CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz"
+    if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'Darwin' ]; then
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}-${ARCH}.tar.gz"
+    else
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz"
+    fi
     download "$CLIENT" "$INSTALL"
   fi
 
@@ -268,6 +272,7 @@ release() {
     echo "Specific version specified. Downloading that version."
     printf "\n"
     version $1
+    exit 0
   fi
 
   if [[ "$1" == "" ]]; then
@@ -278,7 +283,11 @@ release() {
         exit 0
       fi
     CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}.tar.gz"
+    if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}-${ARCH}.tar.gz"
+    else
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}.tar.gz"
+    fi
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/release.txt" "$1"
@@ -289,7 +298,11 @@ release() {
       exit 0
     fi
     CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-install-${OS}.tar.gz"
+    if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-install-${OS}-${ARCH}.tar.gz"
+    else
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/openshift-install-${OS}.tar.gz"
+    fi
     download "$CLIENT" "$INSTALL"
   fi
 
@@ -307,7 +320,11 @@ nightly() {
         exit 0
       fi
     CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest/openshift-install-${OS}.tar.gz"
+    if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}-${ARCH}.tar.gz"
+    else
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz"
+    fi
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/release.txt" "$1"
@@ -318,7 +335,11 @@ nightly() {
       exit 0
     fi
     CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-client-${OS}.tar.gz"
-    INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp-dev-preview/latest-$1/openshift-install-${OS}.tar.gz"
+    if [ "${ARCH}" == 'arm64' ] && [ "${OS}" == 'mac' ]; then
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}-${ARCH}.tar.gz"
+    else
+      INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$1/openshift-install-${OS}.tar.gz"
+    fi
     download "$CLIENT" "$INSTALL"
   fi
 
@@ -362,10 +383,10 @@ backup() {
 
 extract() {
 
-  echo -e "\nExtracting oc and kubectl from openshift-client-${OS}.tar.gz to ${BIN_PATH}"
-  tar -zxf "/tmp/openshift-client-${OS}.tar.gz" -C ${BIN_PATH}
-  echo -e "\nExtracting openshift-install from openshift-install-${OS}.tar.gz to ${BIN_PATH}"
-  tar -zxf "/tmp/openshift-install-${OS}.tar.gz" -C ${BIN_PATH}
+  echo -e "\nExtracting oc and kubectl from $(echo $CLIENT | awk -F/ '{ print $NF }') to ${BIN_PATH}"
+  tar -zxf "/tmp/$(echo $CLIENT | awk -F/ '{ print $NF }')" -C ${BIN_PATH}
+  echo -e "\nExtracting openshift-install from $(echo $INSTALL | awk -F/ '{ print $NF }') to ${BIN_PATH}"
+  tar -zxf "/tmp/$(echo $INSTALL | awk -F/ '{ print $NF}' )" -C ${BIN_PATH}
 
   if [[ "$1" == "cleanup" ]]; then
     cleanup
@@ -615,23 +636,23 @@ If a previous version of the tools are installed it will make a backup of the fi
 Options:
     --latest:  Installs the latest specified version. If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --latest 4.10
+      Example: install-oc-tools --latest 4.11
     --update:  Same as --latest
     --fast:    Installs the latest fast version. If no version is specified then it downloads
                the latest fast version.
-      Example: install-oc-tools --fast 4.10
+      Example: install-oc-tools --fast 4.11
     --stable:  Installs the latest stable version. If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --stable 4.10
+      Example: install-oc-tools --stable 4.11
   --candidate: Installs the candidate version. If no version is specified then it
                downloads the latest candidate version of the oc tools.
-      Example: install-oc-tools --candidate 4.10
+      Example: install-oc-tools --candidate 4.11
     --version: Installs the specific version.  If no version is specified then it
                downloads the latest stable version of the oc tools.
-      Example: install-oc-tools --version 4.10.10
+      Example: install-oc-tools --version 4.11.10
     --info:    Displays Errata URL, Kubernetes Version, and versions it can be upgraded from.
-      Example: install-oc-tools --info 4.10
-      Example: install-oc-tools --info 4.10.5
+      Example: install-oc-tools --info 4.11
+      Example: install-oc-tools --info 4.11.5
     --nightly: Installs the latest nightly version. If you do not specify a version it will grab
                the latest version.
       Example: install-oc-tools --nightly
