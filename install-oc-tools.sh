@@ -289,7 +289,7 @@ release() {
     else
       CLIENT="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-client-${OS}.tar.gz"
       INSTALL="${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2/openshift-install-${OS}.tar.gz"
-    fi    
+    fi
     download "$CLIENT" "$INSTALL"
   else
     verify_version "${MIRROR_DOMAIN}${MIRROR_PATH}/ocp/$2-$1/release.txt" "$1"
@@ -472,14 +472,23 @@ show_ver() {
 
   if which oc &>/dev/null; then
       echo -e "\noc version: $(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //')"
+      oc_version=$(oc version 2>/dev/null | grep Client | sed -e 's/Client Version: //' | cut -d. -f2)
   else
       echo "Error getting oc version. Please rerun script."
   fi
 
-  if which kubectl &>/dev/null; then
-      echo -e "\nkubectl version: $(kubectl version --client | grep -o "GitVersion:.*" | cut -d, -f1)"
+  if [ ${oc_version} -lt 15 ]; then
+    if which kubectl &>/dev/null; then
+        echo -e "\nkubectl version: $(kubectl version --client | grep -o "GitVersion:.*" | cut -d, -f1)"
+    else
+        echo "Error getting kubectl version. Please rerun script."
+    fi
   else
-      echo "Error getting kubectl version. Please rerun script."
+      if which kubectl &>/dev/null; then
+        echo -e "\nkubectl version: $(kubectl version --client | grep -o "Client Version:.*" | cut -d: -f2 | sed -e 's/ //')"
+    else
+        echo "Error getting kubectl version. Please rerun script."
+    fi
   fi
 
   if which openshift-install &>/dev/null; then
